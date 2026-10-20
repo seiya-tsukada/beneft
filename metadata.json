@@ -1,0 +1,6 @@
+{
+  "name": "BeneFT - 福利厚生診断・最適化レコメンド",
+  "description": "3分でわかる！自社に最適な福利厚生サービス診断とBeneFTリプレイス最適化シミュレーション",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
