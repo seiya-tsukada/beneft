@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ScreenType, DiagnosticAnswers, LeadFormData } from './types';
 import { calculateDiagnosisReport, calculateSimulation } from './utils/calculator';
 import { Header } from './components/Header';
@@ -14,12 +14,49 @@ import { Footer } from './components/Footer';
 
 const DEFAULT_EMPLOYEE_COUNT = 100;
 
+// The loading screen has no URL of its own and stays on /quiz
+const SCREEN_PATHS: Partial<Record<ScreenType, string>> = {
+  hero: '/',
+  quiz: '/quiz',
+  result: '/result',
+  thanks: '/thanks'
+};
+
+// Answers are kept per tab so /result and /thanks survive a reload
+const SESSION_KEY = 'beneft-diagnosis';
+
+interface SavedSession {
+  answers: DiagnosticAnswers;
+  employeeCount: number;
+  leadData: LeadFormData | null;
+}
+
+const loadSession = (): SavedSession | null => {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
+const isAnswered = (answers: DiagnosticAnswers) => Boolean(answers.q1 && answers.q2 && answers.q3);
+
+// Map a URL to a screen, falling back when the data that screen needs is missing
+const resolveScreen = (path: string, answers: DiagnosticAnswers, leadData: LeadFormData | null): ScreenType => {
+  if (path === '/quiz') return 'quiz';
+  if (path === '/thanks' && leadData) return 'thanks';
+  if ((path === '/result' || path === '/thanks') && isAnswered(answers)) return 'result';
+  return 'hero';
+};
+
 export default function App() {
-  const [screen, setScreen] = useState<ScreenType>('hero');
+  const [saved] = useState(loadSession);
+  const [answers, setAnswers] = useState<DiagnosticAnswers>(saved?.answers ?? {});
+  const [employeeCount, setEmployeeCount] = useState<number>(saved?.employeeCount ?? DEFAULT_EMPLOYEE_COUNT);
+  const [leadData, setLeadData] = useState<LeadFormData | null>(saved?.leadData ?? null);
+  const [screen, setScreen] = useState<ScreenType>(() => resolveScreen(window.location.pathname, answers, leadData));
   const [currentStep, setCurrentStep] = useState<number>(0);
-  const [answers, setAnswers] = useState<DiagnosticAnswers>({});
-  const [employeeCount, setEmployeeCount] = useState<number>(DEFAULT_EMPLOYEE_COUNT);
-  const [leadData, setLeadData] = useState<LeadFormData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // Modals
@@ -35,14 +72,49 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const navigate = (next: ScreenType) => {
+    setScreen(next);
+    const path = SCREEN_PATHS[next];
+    if (path && path !== window.location.pathname) {
+      window.history.pushState(null, '', path);
+    }
+    scrollToTop();
+  };
+
+  const goHome = () => navigate('hero');
+
+  // Normalize the URL when the requested page fell back (e.g. /result opened without answers)
+  useEffect(() => {
+    const path = SCREEN_PATHS[screen];
+    if (path && path !== window.location.pathname) {
+      window.history.replaceState(null, '', path);
+    }
+    // Only on first load; later changes go through navigate()
+  }, []);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setScreen(resolveScreen(window.location.pathname, answers, leadData));
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [answers, leadData]);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ answers, employeeCount, leadData }));
+    } catch {
+      // Storage may be unavailable (private mode); the app still works without it
+    }
+  }, [answers, employeeCount, leadData]);
+
   // Clear previous answers and results so each diagnosis starts fresh
   const handleStartQuiz = () => {
     setAnswers({});
     setEmployeeCount(DEFAULT_EMPLOYEE_COUNT);
     setLeadData(null);
     setCurrentStep(0);
-    setScreen('quiz');
-    scrollToTop();
+    navigate('quiz');
   };
 
   const handleRestartQuiz = handleStartQuiz;
@@ -57,8 +129,7 @@ export default function App() {
       setCurrentStep((prev) => prev + 1);
     } else {
       // Completed all 3 questions
-      setScreen('loading');
-      scrollToTop();
+      navigate('loading');
     }
   };
 
@@ -69,8 +140,7 @@ export default function App() {
   };
 
   const handleLoadingComplete = () => {
-    setScreen('result');
-    scrollToTop();
+    navigate('result');
   };
 
   const handleSubmitLead = (data: LeadFormData) => {
@@ -79,8 +149,7 @@ export default function App() {
     setTimeout(() => {
       setLeadData(data);
       setIsSubmitting(false);
-      setScreen('thanks');
-      scrollToTop();
+      navigate('thanks');
     }, 850);
   };
 
@@ -99,7 +168,7 @@ export default function App() {
     <div className="min-h-screen flex flex-col justify-between selection:bg-blue-100 selection:text-blue-800 bg-[#f8fafc] text-slate-800">
       {/* Global Header */}
       <Header 
-        onGoHome={() => { setScreen('hero'); scrollToTop(); }}
+        onGoHome={goHome}
         onRequestProposal={handleRequestProposal}
       />
 
@@ -115,7 +184,7 @@ export default function App() {
             answers={answers}
             onSelectChoice={handleSelectChoice}
             onPrev={handlePrevQuestion}
-            onGoHome={() => { setScreen('hero'); scrollToTop(); }}
+            onGoHome={goHome}
           />
         )}
 
@@ -141,14 +210,14 @@ export default function App() {
             leadData={leadData}
             onOpenPdf={() => setIsPdfOpen(true)}
             onOpenConsultation={() => setIsConsultationOpen(true)}
-            onGoHome={() => { setScreen('hero'); scrollToTop(); }}
+            onGoHome={goHome}
           />
         )}
       </main>
 
       {/* Global Footer */}
       <Footer 
-        onGoHome={() => { setScreen('hero'); scrollToTop(); }}
+        onGoHome={goHome}
         onRequestProposal={handleRequestProposal}
         onOpenPrivacy={() => setIsPrivacyOpen(true)}
       />
