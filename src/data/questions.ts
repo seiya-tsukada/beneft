@@ -12,7 +12,7 @@ export const QUESTIONS: Question[] = [
         key: "low_usage",
         label: "リロクラブ等のパッケージ型を導入中だが、利用率が低い",
         sub: "提携施設が限定的で、社員の大半がほとんど使っていない状態",
-        icon: "fa-solid fa-chart-line-down",
+        icon: "fa-solid fa-arrow-trend-down",
         iconBg: "bg-red-100 text-red-600"
       },
       {
@@ -33,7 +33,7 @@ export const QUESTIONS: Question[] = [
         key: "not_introduced",
         label: "まだ何も導入していない / 制度を見直したい",
         sub: "採用強化や社員定着のために、本当に喜ばれる新しい仕組みを探している",
-        icon: "fa-solid fa-sparkles",
+        icon: "fa-solid fa-wand-magic-sparkles",
         iconBg: "bg-emerald-100 text-emerald-600"
       }
     ]

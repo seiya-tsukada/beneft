@@ -1,59 +1,30 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ScreenType, DiagnosticAnswers, LeadFormData } from './types';
+import { EMPLOYEE_COUNT } from './data/content';
+import { QUESTIONS } from './data/questions';
+import { resolveScreen, syncUrl } from './lib/routing';
+import { loadSession, saveSession } from './lib/session';
+import { setAnswer } from './utils/answers';
 import { calculateDiagnosisReport, calculateSimulation } from './utils/calculator';
 import { Header } from './components/Header';
 import { HeroScreen } from './components/HeroScreen';
 import { QuizScreen } from './components/QuizScreen';
 import { LoadingScreen } from './components/LoadingScreen';
 import { ResultScreen } from './components/ResultScreen';
+import { LEAD_FORM_ID } from './components/result/LeadForm';
 import { ThanksScreen } from './components/ThanksScreen';
 import { PdfModal } from './components/PdfModal';
 import { PrivacyModal } from './components/PrivacyModal';
 import { ConsultationModal } from './components/ConsultationModal';
 import { Footer } from './components/Footer';
 
-const DEFAULT_EMPLOYEE_COUNT = 100;
-
-// The loading screen has no URL of its own and stays on /quiz
-const SCREEN_PATHS: Partial<Record<ScreenType, string>> = {
-  hero: '/',
-  quiz: '/quiz',
-  result: '/result',
-  thanks: '/thanks'
-};
-
-// Answers are kept per tab so /result and /thanks survive a reload
-const SESSION_KEY = 'beneft-diagnosis';
-
-interface SavedSession {
-  answers: DiagnosticAnswers;
-  employeeCount: number;
-  leadData: LeadFormData | null;
-}
-
-const loadSession = (): SavedSession | null => {
-  try {
-    const raw = sessionStorage.getItem(SESSION_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-};
-
-const isAnswered = (answers: DiagnosticAnswers) => Boolean(answers.q1 && answers.q2 && answers.q3);
-
-// Map a URL to a screen, falling back when the data that screen needs is missing
-const resolveScreen = (path: string, answers: DiagnosticAnswers, leadData: LeadFormData | null): ScreenType => {
-  if (path === '/quiz') return 'quiz';
-  if (path === '/thanks' && leadData) return 'thanks';
-  if ((path === '/result' || path === '/thanks') && isAnswered(answers)) return 'result';
-  return 'hero';
-};
+// Simulated delay for report generation & lead capture (ms)
+const SUBMIT_DELAY = 850;
 
 export default function App() {
   const [saved] = useState(loadSession);
   const [answers, setAnswers] = useState<DiagnosticAnswers>(saved?.answers ?? {});
-  const [employeeCount, setEmployeeCount] = useState<number>(saved?.employeeCount ?? DEFAULT_EMPLOYEE_COUNT);
+  const [employeeCount, setEmployeeCount] = useState<number>(saved?.employeeCount ?? EMPLOYEE_COUNT.default);
   const [leadData, setLeadData] = useState<LeadFormData | null>(saved?.leadData ?? null);
   const [screen, setScreen] = useState<ScreenType>(() => resolveScreen(window.location.pathname, answers, leadData));
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -74,10 +45,7 @@ export default function App() {
 
   const navigate = (next: ScreenType) => {
     setScreen(next);
-    const path = SCREEN_PATHS[next];
-    if (path && path !== window.location.pathname) {
-      window.history.pushState(null, '', path);
-    }
+    syncUrl(next, 'push');
     scrollToTop();
   };
 
@@ -85,10 +53,7 @@ export default function App() {
 
   // Normalize the URL when the requested page fell back (e.g. /result opened without answers)
   useEffect(() => {
-    const path = SCREEN_PATHS[screen];
-    if (path && path !== window.location.pathname) {
-      window.history.replaceState(null, '', path);
-    }
+    syncUrl(screen, 'replace');
     // Only on first load; later changes go through navigate()
   }, []);
 
@@ -101,34 +66,24 @@ export default function App() {
   }, [answers, leadData]);
 
   useEffect(() => {
-    try {
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ answers, employeeCount, leadData }));
-    } catch {
-      // Storage may be unavailable (private mode); the app still works without it
-    }
+    saveSession({ answers, employeeCount, leadData });
   }, [answers, employeeCount, leadData]);
 
   // Clear previous answers and results so each diagnosis starts fresh
   const handleStartQuiz = () => {
     setAnswers({});
-    setEmployeeCount(DEFAULT_EMPLOYEE_COUNT);
+    setEmployeeCount(EMPLOYEE_COUNT.default);
     setLeadData(null);
     setCurrentStep(0);
     navigate('quiz');
   };
 
-  const handleRestartQuiz = handleStartQuiz;
-
   const handleSelectChoice = (questionId: number, key: string) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [`q${questionId}`]: key
-    }));
+    setAnswers((prev) => setAnswer(prev, questionId, key));
 
-    if (currentStep < 2) {
+    if (currentStep < QUESTIONS.length - 1) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      // Completed all 3 questions
       navigate('loading');
     }
   };
@@ -145,17 +100,17 @@ export default function App() {
 
   const handleSubmitLead = (data: LeadFormData) => {
     setIsSubmitting(true);
-    // Simulate real-time report generation & lead capture
+    // TODO: send the lead to a CRM / form backend; for now this only simulates the request
     setTimeout(() => {
       setLeadData(data);
       setIsSubmitting(false);
       navigate('thanks');
-    }, 850);
+    }, SUBMIT_DELAY);
   };
 
   const handleRequestProposal = () => {
     if (screen === 'result') {
-      const formEl = document.getElementById('lead-form-section');
+      const formEl = document.getElementById(LEAD_FORM_ID);
       if (formEl) {
         formEl.scrollIntoView({ behavior: 'smooth' });
         return;
@@ -198,7 +153,7 @@ export default function App() {
             simulation={simulation}
             employeeCount={employeeCount}
             onEmployeeCountChange={setEmployeeCount}
-            onRestartQuiz={handleRestartQuiz}
+            onRestartQuiz={handleStartQuiz}
             onSubmitLead={handleSubmitLead}
             onOpenPrivacy={() => setIsPrivacyOpen(true)}
             isSubmitting={isSubmitting}

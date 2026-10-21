@@ -27,7 +27,6 @@ export interface PainPoint {
   title: string;
   desc: string;
   icon: string;
-  color: string;
 }
 
 export interface PlanFeature {
@@ -51,6 +50,8 @@ export interface SimulationResult {
   adminHours: number;
   utilizationCurrent: number;
   utilizationProjected: number;
+  // Projected / current utilization, rounded to one decimal
+  utilizationMultiplier: number;
 }
 
 export interface LeadFormData {
