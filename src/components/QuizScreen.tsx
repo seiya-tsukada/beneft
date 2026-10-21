@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { QUESTIONS } from '../data/questions';
 import { DiagnosticAnswers } from '../types';
+import { getAnswer } from '../utils/answers';
+
+// How long the picked card stays highlighted before moving on (ms)
+const ADVANCE_DELAY = 320;
 
 interface QuizScreenProps {
   currentStep: number;
@@ -19,21 +23,25 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
 }) => {
   const currentQuestion = QUESTIONS[currentStep] || QUESTIONS[0];
   const [justSelectedKey, setJustSelectedKey] = useState<string | null>(null);
+  const advanceTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  const currentAnswerKey = 
-    currentQuestion.id === 1 ? answers.q1 :
-    currentQuestion.id === 2 ? answers.q2 :
-    answers.q3;
+  useEffect(() => () => clearTimeout(advanceTimer.current), []);
+
+  const currentAnswerKey = getAnswer(answers, currentQuestion.id);
 
   const remaining = QUESTIONS.length - currentQuestion.step;
   const progressPercent = ((currentStep + 1) / QUESTIONS.length) * 100;
 
   const handleCardClick = (choiceKey: string) => {
+    // Ignore further clicks while the previous pick is still advancing; a ref sees
+    // a pending pick even when two clicks land before React re-renders
+    if (advanceTimer.current) return;
     setJustSelectedKey(choiceKey);
-    setTimeout(() => {
+    advanceTimer.current = setTimeout(() => {
+      advanceTimer.current = undefined;
       onSelectChoice(currentQuestion.id, choiceKey);
       setJustSelectedKey(null);
-    }, 320);
+    }, ADVANCE_DELAY);
   };
 
   return (

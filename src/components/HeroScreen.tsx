@@ -1,4 +1,5 @@
 import React from 'react';
+import { HERO_FEATURES, HERO_PAIN_POINTS, HERO_STATS } from '../data/content';
 
 interface HeroScreenProps {
   onStartQuiz: () => void;
@@ -26,35 +27,17 @@ export const HeroScreen: React.FC<HeroScreenProps> = ({ onStartQuiz }) => {
           
           {/* Key Pain points callout */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-8 text-left">
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-0.5">
-                <i className="fa-solid fa-chart-line-down text-sm"></i>
+            {HERO_PAIN_POINTS.map((item) => (
+              <div key={item.title} className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-start gap-3">
+                <div className={`w-8 h-8 rounded-lg ${item.iconBg} flex items-center justify-center shrink-0 mt-0.5`}>
+                  <i className={`${item.icon} text-sm`}></i>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-800">{item.title}</p>
+                  <p className="text-[12px] text-slate-500 mt-0.5">{item.desc}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-xs font-bold text-slate-800">利用率の低迷</p>
-                <p className="text-[12px] text-slate-500 mt-0.5">提携施設が遠く、一部社員しか使っていない</p>
-              </div>
-            </div>
-
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
-                <i className="fa-solid fa-coins text-sm"></i>
-              </div>
-              <div>
-                <p className="text-xs font-bold text-slate-800">費用対効果の不透明さ</p>
-                <p className="text-[12px] text-slate-500 mt-0.5">使われないのに全社員分の固定費が発生</p>
-              </div>
-            </div>
-
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
-                <i className="fa-solid fa-laptop-house text-sm"></i>
-              </div>
-              <div>
-                <p className="text-xs font-bold text-slate-800">在宅・多様性の不一致</p>
-                <p className="text-[12px] text-slate-500 mt-0.5">在宅勤務や若手社員の日常に還元されない</p>
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* CTA Start Button */}
@@ -76,49 +59,27 @@ export const HeroScreen: React.FC<HeroScreenProps> = ({ onStartQuiz }) => {
 
         {/* Social Proof Stats Banner */}
         <div className="bg-slate-900 text-white px-6 py-4 flex flex-wrap items-center justify-around gap-4 text-center text-xs sm:text-sm">
-          <div className="flex items-center gap-2">
-            <i className="fa-solid fa-building text-blue-400"></i>
-            <span className="text-slate-300">診断実績</span>
-            <span className="font-extrabold text-white text-base">4,200社突破</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <i className="fa-solid fa-face-smile text-emerald-400"></i>
-            <span className="text-slate-300">見直し後 満足度</span>
-            <span className="font-extrabold text-white text-base">94.8%</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <i className="fa-solid fa-piggy-bank text-amber-400"></i>
-            <span className="text-slate-300">平均コスト削減率</span>
-            <span className="font-extrabold text-white text-base">最大 42%</span>
-          </div>
+          {HERO_STATS.map((stat) => (
+            <div key={stat.label} className="flex items-center gap-2">
+              <i className={stat.icon}></i>
+              <span className="text-slate-300">{stat.label}</span>
+              <span className="font-extrabold text-white text-base">{stat.value}</span>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Feature Highlights */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-slate-700">
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
-          <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center mb-3">
-            <i className="fa-solid fa-clipboard-check text-lg"></i>
+        {HERO_FEATURES.map((item) => (
+          <div key={item.title} className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
+            <div className={`w-10 h-10 rounded-lg ${item.iconBg} flex items-center justify-center mb-3`}>
+              <i className={`${item.icon} text-lg`}></i>
+            </div>
+            <h2 className="font-bold text-slate-900 text-sm mb-1">{item.title}</h2>
+            <p className="text-xs text-slate-600 leading-relaxed">{item.desc}</p>
           </div>
-          <h2 className="font-bold text-slate-900 text-sm mb-1">1. 現状の課題を客観分析</h2>
-          <p className="text-xs text-slate-600 leading-relaxed">固定費負担や社員の利用率ギャップなど、見過ごされがちな福利厚生の課題を明確化。</p>
-        </div>
-
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
-          <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mb-3">
-            <i className="fa-solid fa-sliders text-lg"></i>
-          </div>
-          <h2 className="font-bold text-slate-900 text-sm mb-1">2. 最適なリプレイス案を提示</h2>
-          <p className="text-xs text-slate-600 leading-relaxed">ポイント型、実利用精算など、貴社の就業形態に最適な次世代モデル「BeneFT」を提案。</p>
-        </div>
-
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
-          <div className="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center mb-3">
-            <i className="fa-solid fa-calculator text-lg"></i>
-          </div>
-          <h2 className="font-bold text-slate-900 text-sm mb-1">3. 削減額＆利用率を即時算出</h2>
-          <p className="text-xs text-slate-600 leading-relaxed">従業員数を指定するだけで、年間の想定削減コストや利用率向上インパクトをリアルタイム算出。</p>
-        </div>
+        ))}
       </div>
     </section>
   );
