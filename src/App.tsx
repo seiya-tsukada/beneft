@@ -12,15 +12,13 @@ import { PrivacyModal } from './components/PrivacyModal';
 import { ConsultationModal } from './components/ConsultationModal';
 import { Footer } from './components/Footer';
 
+const DEFAULT_EMPLOYEE_COUNT = 100;
+
 export default function App() {
   const [screen, setScreen] = useState<ScreenType>('hero');
   const [currentStep, setCurrentStep] = useState<number>(0);
-  const [answers, setAnswers] = useState<DiagnosticAnswers>({
-    q1: 'low_usage',
-    q2: 'high_usage',
-    q3: 'remote_work'
-  });
-  const [employeeCount, setEmployeeCount] = useState<number>(100);
+  const [answers, setAnswers] = useState<DiagnosticAnswers>({});
+  const [employeeCount, setEmployeeCount] = useState<number>(DEFAULT_EMPLOYEE_COUNT);
   const [leadData, setLeadData] = useState<LeadFormData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -37,17 +35,17 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Clear previous answers and results so each diagnosis starts fresh
   const handleStartQuiz = () => {
+    setAnswers({});
+    setEmployeeCount(DEFAULT_EMPLOYEE_COUNT);
+    setLeadData(null);
     setCurrentStep(0);
     setScreen('quiz');
     scrollToTop();
   };
 
-  const handleRestartQuiz = () => {
-    setCurrentStep(0);
-    setScreen('quiz');
-    scrollToTop();
-  };
+  const handleRestartQuiz = handleStartQuiz;
 
   const handleSelectChoice = (questionId: number, key: string) => {
     setAnswers((prev) => ({
