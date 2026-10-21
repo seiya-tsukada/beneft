@@ -6,20 +6,17 @@ interface HeroScreenProps {
 
 export const HeroScreen: React.FC<HeroScreenProps> = ({ onStartQuiz }) => {
   return (
-    <section className="fade-enter py-8 sm:py-14 px-4 sm:px-6 max-w-5xl mx-auto">
-      {/* Target Audience Badge */}
+    <section className="fade-enter py-8 sm:py-14 px-4 sm:px-6 max-w-5xl mx-auto [word-break:auto-phrase]">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs sm:text-sm font-semibold mb-3 shadow-2xs">
-          <i className="fa-solid fa-arrows-rotate text-emerald-600"></i>
-          <span>パッケージ型（リロクラブ等）の見直し・リプレイス検討企業向け</span>
-        </div>
-        <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight sm:leading-tight">
-          3分でわかる！<br className="sm:hidden" />
-          自社に最適な<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">福利厚生サービス診断</span>
+        <h1 className="font-black text-slate-900 tracking-tight">
+          <span className="block text-3xl sm:text-4xl md:text-5xl leading-snug">
+            <span className="inline-block">自社に最適な</span>
+            <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">福利厚生サービス診断</span>
+          </span>
         </h1>
-        <p className="mt-4 text-sm sm:text-base md:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-          「毎月固定費を支払っているのに利用率が10%台…」「リモートワークや若手社員のニーズに合っていない…」<br className="hidden sm:inline" />
-          貴社の現状課題を3問で可視化し、次世代福利厚生「BeneFT」による最適プランと削減可能コストを即時シミュレーションします。
+        <p className="mt-5 text-sm sm:text-base md:text-lg text-slate-600 leading-relaxed">
+          <span className="sm:block">利用率の低迷や割高な固定費など、貴社の福利厚生の課題を可視化。</span>
+          <span className="sm:block">「BeneFT」による最適プランと削減可能コストを即時シミュレーションします。</span>
         </p>
       </div>
 
