@@ -10,7 +10,7 @@ interface IconItem {
 // Hero: pain points above the start button
 export const HERO_PAIN_POINTS: IconItem[] = [
   {
-    icon: 'fa-solid fa-chart-line-down',
+    icon: 'fa-solid fa-arrow-trend-down',
     iconBg: 'bg-red-100 text-red-600',
     title: '利用率の低迷',
     desc: '提携施設が遠く、一部社員しか使っていない'
