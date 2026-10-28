@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { ScreenType, DiagnosticAnswers, LeadFormData } from './types';
 import { EMPLOYEE_COUNT } from './data/content';
 import { QUESTIONS } from './data/questions';
+import { requestConsultation } from './lib/api';
 import { resolveScreen, syncUrl } from './lib/routing';
 import { loadSession, saveSession } from './lib/session';
 import { setAnswer } from './utils/answers';
@@ -16,9 +17,6 @@ import { ThanksScreen } from './components/ThanksScreen';
 import { PdfModal } from './components/PdfModal';
 import { PrivacyModal } from './components/PrivacyModal';
 import { Footer } from './components/Footer';
-
-// Simulated delay for submitting the consultation request (ms)
-const SUBMIT_DELAY = 850;
 
 export default function App() {
   const [saved] = useState(loadSession);
@@ -96,14 +94,19 @@ export default function App() {
     navigate('result');
   };
 
-  const handleSubmitLead = (data: LeadFormData) => {
+  const handleSubmitLead = async (data: LeadFormData) => {
     setIsSubmitting(true);
-    // TODO: send the lead to a CRM / form backend; for now this only simulates the request
-    setTimeout(() => {
-      setLeadData(data);
+    try {
+      await requestConsultation({ lead: data, answers, report, simulation, employeeCount });
+    } catch (err) {
+      console.error('Consultation request failed', err);
+      alert('送信に失敗しました。時間をおいて再度お試しください。');
       setIsSubmitting(false);
-      navigate('thanks');
-    }, SUBMIT_DELAY);
+      return;
+    }
+    setLeadData(data);
+    setIsSubmitting(false);
+    navigate('thanks');
   };
 
   const handleRequestConsultation = () => {
