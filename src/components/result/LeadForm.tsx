@@ -8,7 +8,7 @@ interface LeadFormProps {
   isSubmitting: boolean;
 }
 
-// The header's 提案シート請求 button scrolls here while the result screen is shown
+// The footer's 無料相談 link scrolls here while the result screen is shown
 export const LEAD_FORM_ID = 'lead-form-section';
 
 const inputClass =
@@ -48,11 +48,11 @@ export const LeadForm: React.FC<LeadFormProps> = ({ onSubmitLead, onOpenPrivacy,
     <div id={LEAD_FORM_ID} className="bg-white rounded-2xl border-2 border-blue-600 shadow-lg p-6 sm:p-10 mt-10">
       <div className="text-center mb-8 [word-break:auto-phrase]">
         <h3 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-          診断レポートを無料で受け取る
+          専任コンサルタントに無料で相談する
         </h3>
         <p className="mt-2 text-sm text-slate-500 leading-relaxed">
-          <span className="sm:block">詳細な試算結果・他社の乗り換え事例・移行手順を</span>
-          <span className="sm:block">まとめた提案シート（PDF）をお送りします。</span>
+          <span className="sm:block">診断結果をもとに、貴社に合った福利厚生の見直し方や</span>
+          <span className="sm:block">導入・乗り換えの進め方をオンラインでご案内します。</span>
         </p>
       </div>
 
@@ -100,7 +100,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({ onSubmitLead, onOpenPrivacy,
             placeholder="例：yamada@example.co.jp"
             className={inputClass}
           />
-          <p className="text-xs text-slate-400 mt-1.5">提案シートの送付先になります。会社のメールアドレスをご入力ください。</p>
+          <p className="text-xs text-slate-400 mt-1.5">相談日程のご連絡先になります。会社のメールアドレスをご入力ください。</p>
         </div>
 
         <div>
@@ -155,7 +155,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({ onSubmitLead, onOpenPrivacy,
               <span>送信中...</span>
             </>
           ) : (
-            <span>無料でレポートを受け取る</span>
+            <span>無料相談を申し込む</span>
           )}
         </button>
 

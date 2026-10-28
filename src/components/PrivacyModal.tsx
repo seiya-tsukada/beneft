@@ -14,7 +14,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) =
         <CloseButton onClick={onClose} />
       </div>
       <div className="py-4 text-xs text-slate-600 space-y-3 leading-relaxed max-h-60 overflow-y-auto">
-        <p>1. 収集した企業名、担当者名、連絡先情報は、「BeneFT」福利厚生診断結果レポートの送付および関連する最適化提案のご連絡のみに利用いたします。</p>
+        <p>1. 収集した企業名、担当者名、連絡先情報は、「BeneFT」無料相談の日程調整および関連する最適化提案のご連絡のみに利用いたします。</p>
         <p>2. 法令に基づく場合を除き、ご本人の同意なく第三者への提供は行いません。</p>
         <p>3. 入力情報はSSL暗号化通信により安全に保護されております。</p>
       </div>

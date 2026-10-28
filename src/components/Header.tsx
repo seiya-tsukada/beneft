@@ -2,10 +2,9 @@ import React from 'react';
 
 interface HeaderProps {
   onGoHome: () => void;
-  onRequestProposal: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onGoHome, onRequestProposal }) => {
+export const Header: React.FC<HeaderProps> = ({ onGoHome }) => {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -37,14 +36,6 @@ export const Header: React.FC<HeaderProps> = ({ onGoHome, onRequestProposal }) =
             <i className="fa-regular fa-clock text-blue-600 mr-1.5"></i>
             <span>所要時間：約3分 / 完全無料</span>
           </div>
-          <button 
-            type="button"
-            onClick={onRequestProposal}
-            className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all shadow-xs cursor-pointer"
-          >
-            <i className="fa-solid fa-file-lines"></i>
-            <span>提案シート請求</span>
-          </button>
         </div>
       </div>
     </header>
