@@ -25,6 +25,8 @@ npm run build    # dist/ に本番ビルド
 | `src/data/` | 設問・診断文言・比較表などのコンテンツ |
 | `src/utils/` | 診断結果と試算の計算、表示用フォーマット |
 | `src/components/` | 画面とモーダル（共通部品は `components/ui/`） |
+| `api/` | Vercel Functions（`/api/*` のエンドポイント） |
+| `server/` | API の処理本体・メールテンプレート・メール送信 |
 
 文言や設問を変えるときは、基本的に `src/data/` だけを編集すれば済むようにしています。設問は 1 問 1 ファイル（`src/data/questions/q1.ts` 〜 `q3.ts`）で、表示順は `src/data/questions/index.ts` の配列で決まります。
 
@@ -42,5 +44,20 @@ npm run build    # dist/ に本番ビルド
 ## 補足
 
 - アイコンは Font Awesome 6 (CDN) を使っています（`index.html`）。
-- リード送信は現状デモ動作で、外部への送信は行っていません（`App.tsx` の `handleSubmitLead`）。
+- 無料相談フォームの送信先は `POST /api/consultation` です。詳しくは下の「無料相談メール」を参照してください。
 - `metadata.json` は Google AI Studio 用の設定ファイルです。
+
+## 無料相談メール
+
+結果画面の無料相談フォームを送信すると、`POST /api/consultation` が次の 2 通を送ります。
+
+| メール | 宛先 | テンプレート |
+| --- | --- | --- |
+| 社内向け通知（返信すると申込者宛て） | `CONSULTATION_NOTIFY_TO` | `server/consultation/templates/staffNotification.ts` |
+| 申込者への自動返信 | フォームのメールアドレス | `server/consultation/templates/userConfirmation.ts` |
+
+- 文面を変えるときは上のテンプレートを編集します。共通の枠・フッター・会社名は `templates/layout.ts` にあります。
+- 社内向け通知が送れなかった場合だけ送信エラーにし、自動返信の失敗はログに残すだけにしています。
+- 送信には [Resend](https://resend.com) を使う予定です。**現状の `server/mail/resend.ts` はスタブで、実際には送信せずサーバーのコンソールに内容を出力します。** 本番化の手順は同ファイルの TODO に書いてあります。
+- 開発中は `npm run dev` の Vite サーバーが `/api/consultation` を処理するので、送信内容はターミナルに表示されます。本番（Vercel）では `api/consultation.ts` が処理します。
+- 環境変数は `.env.example` を `.env.local` にコピーして設定します。Vercel ではプロジェクトの Environment Variables に同じキーを設定してください。
