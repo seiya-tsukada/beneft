@@ -29,7 +29,6 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
 
   const currentAnswerKey = getAnswer(answers, currentQuestion.id);
 
-  const remaining = QUESTIONS.length - currentQuestion.step;
   const progressPercent = ((currentStep + 1) / QUESTIONS.length) * 100;
 
   const handleCardClick = (choiceKey: string) => {
@@ -68,16 +67,6 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
               <span>前へ戻る</span>
             </button>
           )}
-
-          <span 
-            className={`text-xs font-bold px-3 py-1 rounded-full border ${
-              remaining > 0 
-                ? 'text-blue-600 bg-blue-50 border-blue-200' 
-                : 'text-emerald-700 bg-emerald-50 border-emerald-200'
-            }`}
-          >
-            {remaining > 0 ? `あと ${remaining} 問で完了` : '最終設問'}
-          </span>
 
           <span className="text-xs font-bold text-slate-500">
             STEP {currentQuestion.step} / {QUESTIONS.length}

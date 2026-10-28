@@ -2,13 +2,13 @@ import React from 'react';
 
 interface FooterProps {
   onGoHome: () => void;
-  onRequestProposal: () => void;
+  onRequestConsultation: () => void;
   onOpenPrivacy: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   onGoHome,
-  onRequestProposal,
+  onRequestConsultation,
   onOpenPrivacy
 }) => {
   return (
@@ -39,12 +39,12 @@ export const Footer: React.FC<FooterProps> = ({
           <button 
             type="button"
             className="hover:text-slate-200 transition cursor-pointer" 
-            onClick={onRequestProposal}
+            onClick={onRequestConsultation}
           >
-            提案シートダウンロード
+            無料相談のお申し込み
           </button>
         </div>
-        <p className="text-[11px] text-slate-500">© 2026 BeneFT All Rights Reserved.</p>
+        <p className="text-[11px] text-slate-500">© 2026 株式会社アシタモハレ All Rights Reserved.</p>
       </div>
     </footer>
   );

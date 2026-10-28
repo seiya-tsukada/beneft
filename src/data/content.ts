@@ -106,11 +106,3 @@ export const MIGRATION_STEPS = [
   }
 ];
 
-// Consultation modal: bookable slots (the first is preselected)
-export const CONSULTATION_SLOTS = [
-  '平日 10:00〜10:15',
-  '平日 11:30〜11:45',
-  '平日 14:00〜14:15',
-  '平日 16:30〜16:45',
-  'その他日程（別途メールにて調整）'
-];

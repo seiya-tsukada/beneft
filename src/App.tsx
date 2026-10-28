@@ -15,10 +15,9 @@ import { LEAD_FORM_ID } from './components/result/LeadForm';
 import { ThanksScreen } from './components/ThanksScreen';
 import { PdfModal } from './components/PdfModal';
 import { PrivacyModal } from './components/PrivacyModal';
-import { ConsultationModal } from './components/ConsultationModal';
 import { Footer } from './components/Footer';
 
-// Simulated delay for report generation & lead capture (ms)
+// Simulated delay for submitting the consultation request (ms)
 const SUBMIT_DELAY = 850;
 
 export default function App() {
@@ -33,7 +32,6 @@ export default function App() {
   // Modals
   const [isPdfOpen, setIsPdfOpen] = useState<boolean>(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState<boolean>(false);
-  const [isConsultationOpen, setIsConsultationOpen] = useState<boolean>(false);
 
   // Computed metrics
   const report = useMemo(() => calculateDiagnosisReport(answers), [answers]);
@@ -108,7 +106,7 @@ export default function App() {
     }, SUBMIT_DELAY);
   };
 
-  const handleRequestProposal = () => {
+  const handleRequestConsultation = () => {
     if (screen === 'result') {
       const formEl = document.getElementById(LEAD_FORM_ID);
       if (formEl) {
@@ -122,10 +120,7 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col justify-between selection:bg-blue-100 selection:text-blue-800 bg-[#f8fafc] text-slate-800">
       {/* Global Header */}
-      <Header 
-        onGoHome={goHome}
-        onRequestProposal={handleRequestProposal}
-      />
+      <Header onGoHome={goHome} />
 
       {/* Main Dynamic Screens */}
       <main className="flex-grow">
@@ -164,7 +159,6 @@ export default function App() {
           <ThanksScreen 
             leadData={leadData}
             onOpenPdf={() => setIsPdfOpen(true)}
-            onOpenConsultation={() => setIsConsultationOpen(true)}
             onGoHome={goHome}
           />
         )}
@@ -173,7 +167,7 @@ export default function App() {
       {/* Global Footer */}
       <Footer 
         onGoHome={goHome}
-        onRequestProposal={handleRequestProposal}
+        onRequestConsultation={handleRequestConsultation}
         onOpenPrivacy={() => setIsPrivacyOpen(true)}
       />
 
@@ -190,12 +184,6 @@ export default function App() {
       <PrivacyModal 
         isOpen={isPrivacyOpen}
         onClose={() => setIsPrivacyOpen(false)}
-      />
-
-      <ConsultationModal 
-        isOpen={isConsultationOpen}
-        onClose={() => setIsConsultationOpen(false)}
-        userEmail={leadData?.email}
       />
     </div>
   );
