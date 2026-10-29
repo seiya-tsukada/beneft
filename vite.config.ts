@@ -16,22 +16,25 @@ const consultationApi = (): Plugin => ({
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(body));
       };
-      if (req.method !== 'POST') return reply(405, { ok: false, error: 'method_not_allowed' });
-
-      let input: unknown;
-      try {
-        const chunks: Buffer[] = [];
-        for await (const chunk of req) chunks.push(chunk as Buffer);
-        input = JSON.parse(Buffer.concat(chunks).toString('utf8'));
-      } catch {
-        return reply(400, { ok: false, error: 'invalid_json' });
-      }
-
       // Loaded per request so edits to the handler and templates apply without a restart
-      const { getMailConfig, handleConsultation } = await server.ssrLoadModule('/server/consultation/handler.ts');
-      const { createResendSender } = await server.ssrLoadModule('/server/mail/resend.ts');
-      const config = getMailConfig({ ...process.env, ...loadEnv(server.config.mode, process.cwd(), '') });
-      const { status, body } = await handleConsultation(input, createResendSender(config.resendApiKey), config);
+      const handler = await server.ssrLoadModule('/server/consultation/handler.ts');
+      const header = (name: string) => [req.headers[name]].flat()[0] ?? null;
+      const rejected = handler.checkRequestMeta({
+        method: req.method,
+        contentType: header('content-type'),
+        origin: header('origin'),
+        host: header('host'),
+        contentLength: header('content-length')
+      });
+      if (rejected) return reply(rejected.status, rejected.body);
+
+      const chunks: Buffer[] = [];
+      for await (const chunk of req) chunks.push(chunk as Buffer);
+      const parsed = handler.parseBody(Buffer.concat(chunks).toString('utf8'));
+      if (!('input' in parsed)) return reply(parsed.status, parsed.body);
+
+      const env = { ...process.env, ...loadEnv(server.config.mode, process.cwd(), '') };
+      const { status, body } = await handler.handleConsultationWithEnv(parsed.input, env);
       reply(status, body);
     });
   }
