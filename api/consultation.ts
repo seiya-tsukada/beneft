@@ -1,16 +1,21 @@
 // Vercel Function for POST /api/consultation. The logic lives in server/consultation/handler.ts.
-import { getMailConfig, handleConsultation } from '../server/consultation/handler.js';
-import { createResendSender } from '../server/mail/resend.js';
+import { checkRequestMeta, handleConsultationWithEnv, HandlerResult, parseBody } from '../server/consultation/handler.js';
+
+const reply = ({ status, body }: HandlerResult) =>
+  Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 
 export async function POST(request: Request): Promise<Response> {
-  let input: unknown;
-  try {
-    input = await request.json();
-  } catch {
-    return Response.json({ ok: false, error: 'invalid_json' }, { status: 400 });
-  }
+  const rejected = checkRequestMeta({
+    method: request.method,
+    contentType: request.headers.get('content-type'),
+    origin: request.headers.get('origin'),
+    host: request.headers.get('host'),
+    contentLength: request.headers.get('content-length')
+  });
+  if (rejected) return reply(rejected);
 
-  const config = getMailConfig();
-  const { status, body } = await handleConsultation(input, createResendSender(config.resendApiKey), config);
-  return Response.json(body, { status });
+  const parsed = parseBody(await request.text());
+  if (!('input' in parsed)) return reply(parsed);
+
+  return reply(await handleConsultationWithEnv(parsed.input, process.env));
 }
